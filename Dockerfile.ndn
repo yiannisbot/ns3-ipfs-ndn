@@ -1,0 +1,90 @@
+FROM node:8
+RUN echo 'deb http://deb.debian.org/debian stretch non-free contrib' > /etc/apt/sources.list.d/contrib.list
+WORKDIR /usr/src/app
+COPY video /usr/src/app/video
+COPY streaming-ndn.js /usr/src/app
+#COPY publish.sh /usr/src/app
+
+ENV IPFS_WRTC_LINUX_WINDOWS=1
+ENV IPFS_MONITORING=1
+ENV IPFS_PATH=/root/.jsipfs
+ENV IPFS_API_HOST=0.0.0.0
+
+ENV BUILD_DEPS='libnspr4 libnspr4-dev libnss3'
+
+EXPOSE 4002
+EXPOSE 4003
+EXPOSE 5002
+EXPOSE 9090
+
+RUN apt-get update \
+  && apt-get install --yes $BUILD_DEPS \
+  && apt-get install --yes libpcap-dev libboost-all-dev \
+  && rm -rf /var/lib/apt/lists/* \
+  && npm install --production \
+  && npm install wrtc@0.0.67 --production \
+  && npm install m3u8 \
+  && npm install ipfs \
+  && npm install fs log-timestamp \
+  && npm cache clear --force \
+  && apt-get purge --yes $BUILD_DEPS libpcap-dev libboost-all-dev \
+  && rm -rf /usr/share/doc /usr/share/locale \
+  && rm -rf /usr/local/share/.cache \
+  && rm -rf node_modules/go-ipfs-dep/go-ipfs/ipfs
+#  && ln -s $(pwd)/src/cli/bin.js /usr/local/bin/jsipfs
+
+# install ndn-cxx
+RUN git clone https://github.com/named-data/ndn-cxx.git \
+    && cd ndn-cxx \
+#    && git checkout $VERSION_CXX \
+    && ./waf configure \
+    && ./waf \
+    && ./waf install \
+    && cd .. \
+#    && rm -Rf ndn-cxx \
+    && ldconfig
+
+# install NFD
+RUN git clone --recursive https://github.com/named-data/NFD \
+    && cd NFD \
+#    && git checkout $VERSION_NFD \
+    && ./waf configure \
+    && ./waf \
+    && ./waf install \
+    && cd ..
+#    && rm -Rf NFD
+
+# install ndn-tools
+RUN git clone --recursive https://github.com/named-data/ndn-tools.git \
+    && cd ndn-tools \
+    && ./waf configure --disable-dissect \
+    && ./waf \
+    && ./waf install \
+    && cd .. \
+    && rm -Rf ndn-tools
+
+# initial configuration
+RUN cp /usr/local/etc/ndn/nfd.conf.sample /usr/local/etc/ndn/nfd.conf \
+
+    && ndnsec-keygen /`whoami` | ndnsec-install-cert - \
+    && mkdir -p /usr/local/etc/ndn/keys \
+    && ndnsec-cert-dump -i /`whoami` > default.ndncert \
+    && mv default.ndncert /usr/local/etc/ndn/keys/default.ndncert
+
+RUN mkdir /share \
+    && mkdir /logs
+
+# cleanup
+#RUN apt autoremove \
+#    && apt-get remove -y git build-essential python pkg-config
+
+EXPOSE 6363/tcp
+EXPOSE 6363/udp
+
+ENV CONFIG=/usr/local/etc/ndn/nfd.conf
+ENV LOG_FILE=/logs/nfd.log
+
+CMD /usr/local/bin/nfd -c $CONFIG > $LOG_FILE 2>&1
+
+#CMD node --harmony streaming.js
+

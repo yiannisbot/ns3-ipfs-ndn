@@ -1,0 +1,12 @@
+FROM ipfs/go-ipfs
+MAINTAINER Sergi Rene <s.rene@ucl.ac.uk>
+
+WORKDIR /usr/src/app
+ADD video /usr/src/app/video
+
+#RUN apt-get update && apt-get install -y \
+#    net-tools \
+#    iputils-ping \
+#    iproute2
+#ENTRYPOINT ["sh","-c","ipfs init && ipfs daemon --migrate=true"]
+CMD ["daemon"]
