@@ -37,4 +37,4 @@ $ sudo python main.new.ipfs.py -n 10 -t 100 emulate ---> starts the experiment
 
 <strong> Setting ns3 simulation scenario: </strong>
 
-Currently, by default the simulator runs the scenario called tap-vm2. You can find tap-vm2 under the scratch folder of ns-3 (see: bake/source/ns-3.26/scratch/). tap-vm2 creates a star topology with a configurable number of nodes. In order to create different topologies, please refer to ns3 documentation: https://www.nsnam.org/documentation/
+Currently, by default the simulator runs the scenario called tap-vm2. You can find tap-vm2 under the scratch folder of ns-3 (see: bake/source/ns-3.26/scratch/). tap-vm2 creates a *star topology* with a configurable number of nodes. In order to create different topologies, please refer to ns3 documentation: https://www.nsnam.org/documentation/
