@@ -30,9 +30,11 @@ Use -n option to set the number of nodes in the topology and -t option to set th
 Example:
 
 $ sudo python main.new.ipfs.py -n 10 -t 100 create  ---> builds ns3, loads ipfs Docker image and sets up the emulator
+
 $ sudo python main.new.ipfs.py -n 10 -t 100 ns3     ---> starts ns3 and connects with containers
+
 $ sudo python main.new.ipfs.py -n 10 -t 100 emulate ---> starts the experiment
 
 <strong> Setting ns3 simulation scenario: </strong>
 
-Currently, by default the simulator runs the scenario called tap-vm2. You can find tap-vm2 under the scratch folder of ns-3 (see: bake/source/ns-3.26/scratch/). Currently, this scenario creates a star topology with a configurable number of nodes. In order to create different topologies, please refer to ns3 documentation: https://www.nsnam.org/documentation/
+Currently, by default the simulator runs the scenario called tap-vm2. You can find tap-vm2 under the scratch folder of ns-3 (see: bake/source/ns-3.26/scratch/). tap-vm2 creates a star topology with a configurable number of nodes. In order to create different topologies, please refer to ns3 documentation: https://www.nsnam.org/documentation/
